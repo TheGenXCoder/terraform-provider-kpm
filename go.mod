@@ -2,7 +2,10 @@ module github.com/TheGenXCoder/terraform-provider-kpm
 
 go 1.25.0
 
-require github.com/hashicorp/terraform-plugin-framework v1.13.0
+require (
+	github.com/TheGenXCoder/kpm v0.3.0
+	github.com/hashicorp/terraform-plugin-framework v1.13.0
+)
 
 require (
 	github.com/fatih/color v1.13.0 // indirect

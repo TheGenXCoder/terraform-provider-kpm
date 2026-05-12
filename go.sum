@@ -1,3 +1,5 @@
+github.com/TheGenXCoder/kpm v0.3.0 h1:23/gzVdIysoj1IQNBXs3I45aKHbn+APoDqmQyeLDkxA=
+github.com/TheGenXCoder/kpm v0.3.0/go.mod h1:1MU+7mcPABExkcZLKO9Ne2KsuS2eQcFu1Vz+PcPh3UQ=
 github.com/bufbuild/protocompile v0.4.0 h1:LbFKd2XowZvQ/kajzguUp2DC9UEIQhIq77fZZlaQsNA=
 github.com/bufbuild/protocompile v0.4.0/go.mod h1:3v93+mbWn/v3xzN+31nwkJfrEpAUwp+BagBSZWx+TP8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
