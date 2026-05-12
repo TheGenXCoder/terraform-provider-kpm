@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -73,6 +74,38 @@ func (p *KPMProvider) Configure(ctx context.Context, req provider.ConfigureReque
 	cert := first(cfg.Cert.ValueString(), os.Getenv("KPM_CERT"))
 	key := first(cfg.Key.ValueString(), os.Getenv("KPM_KEY"))
 	caCert := first(cfg.CACert.ValueString(), os.Getenv("KPM_CA_CERT"))
+
+	if server == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("server"),
+			"Missing AgentKMS server URL",
+			"Set the server attribute or the KPM_SERVER environment variable.",
+		)
+	}
+	if cert == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("cert"),
+			"Missing mTLS client certificate",
+			"Set the cert attribute or the KPM_CERT environment variable.",
+		)
+	}
+	if key == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("key"),
+			"Missing mTLS client key",
+			"Set the key attribute or the KPM_KEY environment variable.",
+		)
+	}
+	if caCert == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("ca_cert"),
+			"Missing CA certificate",
+			"Set the ca_cert attribute or the KPM_CA_CERT environment variable.",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	c, err := client.New(server, cert, key, caCert)
 	if err != nil {

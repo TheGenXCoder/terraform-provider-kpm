@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/TheGenXCoder/terraform-provider-kpm/internal/client"
@@ -60,6 +62,9 @@ func (r *SecretResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:    true,
 				Computed:    true,
 				Description: "Secret type: generic (default), api-token, ssh-key, connection-string, jwt, password.",
+				Validators: []validator.String{
+					stringvalidator.OneOf("generic", "api-token", "ssh-key", "connection-string", "jwt", "password"),
+				},
 			},
 			"description": schema.StringAttribute{
 				Optional:    true,

@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/TheGenXCoder/terraform-provider-kpm/internal/client"
 	"github.com/TheGenXCoder/terraform-provider-kpm/internal/resources"
 )
@@ -42,10 +44,38 @@ func TestSecretResourceSchemaFields(t *testing.T) {
 }
 
 func TestSecretResourceWriteRecordsPath(t *testing.T) {
-	mock := &client.MockClient{
-		UpGetSecret: "myvalue",
+	mock := &client.MockClient{}
+	r := resources.NewSecretResource()
+	r.(*resources.SecretResource).SetClient(mock)
+
+	ctx := context.Background()
+
+	// Get the schema so we can build a properly typed plan.
+	var schemaResp resource.SchemaResponse
+	r.Schema(ctx, resource.SchemaRequest{}, &schemaResp)
+
+	attrTypes := schemaResp.Schema.Type().TerraformType(ctx).(tftypes.Object).AttributeTypes
+	planVal := tftypes.NewValue(tftypes.Object{AttributeTypes: attrTypes}, map[string]tftypes.Value{
+		"path":        tftypes.NewValue(tftypes.String, "svc/key"),
+		"value":       tftypes.NewValue(tftypes.String, "s3cr3t"),
+		"type":        tftypes.NewValue(tftypes.String, nil),
+		"description": tftypes.NewValue(tftypes.String, nil),
+		"tags":        tftypes.NewValue(attrTypes["tags"], nil),
+	})
+	req := resource.CreateRequest{}
+	req.Plan = tfsdk.Plan{Raw: planVal, Schema: schemaResp.Schema}
+
+	var resp resource.CreateResponse
+	resp.State = tfsdk.State{Schema: schemaResp.Schema}
+	r.Create(ctx, req, &resp)
+
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("unexpected diagnostics: %s", resp.Diagnostics[0].Detail())
 	}
-	_ = mock
-	// MockClient satisfies AgentKMSClient — compile-time check
-	var _ client.AgentKMSClient = mock
+	if mock.WrittenPath != "svc/key" {
+		t.Errorf("WrittenPath = %q, want %q", mock.WrittenPath, "svc/key")
+	}
+	if mock.WrittenValue != "s3cr3t" {
+		t.Errorf("WrittenValue = %q, want %q", mock.WrittenValue, "s3cr3t")
+	}
 }

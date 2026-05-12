@@ -11,7 +11,8 @@ terraform {
 # KPM_SERVER, KPM_CERT, KPM_KEY, KPM_CA_CERT
 provider "kpm" {
   server  = "https://agentkms.local:8443"
-  cert    = "~/.kpm/certs/client.crt"
-  key     = "~/.kpm/certs/client.key"
-  ca_cert = "~/.kpm/certs/ca.crt"
+  # Use pathexpand() to expand ~ — Terraform does not expand tilde in string values.
+  cert    = pathexpand("~/.kpm/certs/client.crt")
+  key     = pathexpand("~/.kpm/certs/client.key")
+  ca_cert = pathexpand("~/.kpm/certs/ca.crt")
 }
