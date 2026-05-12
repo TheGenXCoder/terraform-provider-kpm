@@ -2,6 +2,8 @@ package client
 
 import "context"
 
+var _ AgentKMSClient = &MockClient{}
+
 // MockClient is a controllable fake for unit tests.
 // Set Up* fields to control what each method returns.
 type MockClient struct {
