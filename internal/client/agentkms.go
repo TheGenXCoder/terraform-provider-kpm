@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +15,10 @@ import (
 
 	"github.com/TheGenXCoder/kpm/pkg/tlsutil"
 )
+
+// ErrNotFound is returned when a resource does not exist on the AgentKMS server.
+// Resources use errors.Is(err, client.ErrNotFound) to distinguish 404 from transient errors.
+var ErrNotFound = errors.New("not found")
 
 // AgentKMSClient is the interface used by all resources and data sources.
 // The interface enables mock injection in unit tests.
@@ -209,7 +214,7 @@ func (c *httpAgentKMS) GetSecret(ctx context.Context, path string) (string, erro
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return "", fmt.Errorf("not found: %s", path)
+		return "", fmt.Errorf("%w: %s", ErrNotFound, path)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return "", serverErr(resp, "get secret "+path)
@@ -275,7 +280,7 @@ func (c *httpAgentKMS) GetGithubApp(ctx context.Context, name string) (*GithubAp
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("not found: %s", name)
+		return nil, fmt.Errorf("%w: %s", ErrNotFound, name)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, serverErr(resp, "get github app "+name)

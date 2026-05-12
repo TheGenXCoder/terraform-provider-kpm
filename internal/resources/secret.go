@@ -2,6 +2,7 @@ package resources
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -124,8 +125,11 @@ func (r *SecretResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	value, err := r.client.GetSecret(ctx, state.Path.ValueString())
 	if err != nil {
-		// Secret no longer exists — remove from state.
-		resp.State.RemoveResource(ctx)
+		if errors.Is(err, client.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading secret", err.Error())
 		return
 	}
 	state.Value = types.StringValue(value)

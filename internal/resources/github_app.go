@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -115,8 +116,11 @@ func (r *GithubAppResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	app, err := r.client.GetGithubApp(ctx, state.Name.ValueString())
 	if err != nil {
-		// App no longer exists — remove from state.
-		resp.State.RemoveResource(ctx)
+		if errors.Is(err, client.ErrNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error reading GitHub App", err.Error())
 		return
 	}
 
