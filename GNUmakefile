@@ -1,18 +1,18 @@
 default: build
 
 build:
-	go build ./...
+	GOWORK=off go build ./...
 
 test:
-	go test ./... -v -count=1
+	GOWORK=off go test ./... -v -count=1
 
 testacc:
-	TF_ACC=1 go test ./... -v -count=1 -timeout 120m
+	GOWORK=off TF_ACC=1 go test ./... -v -count=1 -timeout 120m
 
 install:
-	go install .
+	GOWORK=off go install .
 
 lint:
-	golangci-lint run ./...
+	GOWORK=off golangci-lint run ./...
 
 .PHONY: build test testacc install lint
